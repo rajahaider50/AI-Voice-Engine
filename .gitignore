@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+output/
+audio/
+*.db
+.env
+node_modules/
+build/
+.gradle/
+*.apk
+.idea/
+.vscode/
+*.iml
+local.properties
+*.lock
+pubspec.lock
