@@ -73,15 +73,18 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final provider = context.read<TTSProvider>();
       final url = provider.getAudioUrl(filename);
-      await _audioPlayer.play(UrlSource(url));
       setState(() => _isPlaying = true);
+      await _audioPlayer.play(UrlSource(url));
       _audioPlayer.onPlayerComplete.listen((_) {
-        setState(() => _isPlaying = false);
+        if (mounted) setState(() => _isPlaying = false);
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Playback error: $e'), backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        setState(() => _isPlaying = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Playback error: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -334,8 +337,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 return Card(
                                   child: ListTile(
                                     leading: IconButton(
-                                      icon: const Icon(Icons.play_arrow),
-                                      onPressed: () => _playAudio(entry.filename),
+                                      icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
+                                      onPressed: () => _isPlaying
+                                          ? _audioPlayer.stop().then((_) => setState(() => _isPlaying = false))
+                                          : _playAudio(entry.filename),
                                     ),
                                     title: Text(
                                       entry.text,
